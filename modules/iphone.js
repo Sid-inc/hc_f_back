@@ -2,6 +2,7 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const CronJob = require('cron').CronJob;
 const getDeviceStatus = require('../dbqueryes');
+const sendMessage = require('sendMessage');
 
 function monitoringIphone(iphone) {
   let task = new CronJob('* */2 * * * *', function() {
@@ -13,7 +14,7 @@ function monitoringIphone(iphone) {
 async function сheckIphone(iphone) {
   // Актуализируем статус
   const currentState = await getDeviceStatus(iphone.id);
-  const state = '';
+  let state = '';
 
   try {
     const { stdout, stderr } = await exec(`ping -i 0.5 -w 61 -q ${iphone.ip}`);
@@ -40,8 +41,6 @@ async function сheckIphone(iphone) {
   }
 }
 
-function getDeviceStatus() {};
-function sendMessage() {};
 function setDevice() {};
 
 сheckIphone({ ip: '192.168.1.10' });

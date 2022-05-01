@@ -1,6 +1,12 @@
 {
+  "name": "homecontrol_back",
+  "version": "0.1.0",
+  "description": "Home control on node js",
+  "main": "server.js",
+  "author": "Sid_inc",
   "devDependencies": {
     "cron": "^1.8.2",
-    "mysql2": "^2.3.3"
+    "mysql2": "^2.3.3",
+    "node-telegram-bot-api": "^0.57.0"
   }
 }
