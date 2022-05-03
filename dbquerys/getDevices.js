@@ -6,4 +6,6 @@ async function getDev() {
   return devices;
 }
 
+getDev();
+
 module.exports = getDev;

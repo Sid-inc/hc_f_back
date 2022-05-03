@@ -5,6 +5,8 @@ const chatId = '384765627';
 
 function sendMessage (message) {
   bot.sendMessage(chatId, message);
+  console.log('Отправили сообщение выходим из функции sendMessage');
+  return;
 }
 
 module.exports = sendMessage;
