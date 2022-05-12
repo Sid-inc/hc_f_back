@@ -1,11 +1,13 @@
-const BOT_TOKEN = '796567768:AAEo_9nRsDvmDj6cbVpkRUGhnftFd4oDsGA';
-const telegramBot = require('node-telegram-bot-api');
-const bot = new telegramBot(BOT_TOKEN, { polling: true });
-const chatId = '384765627';
+const telegram = require('../telegramSettings');
+const http = require('request');
+
+const BOT_TOKEN = telegram.token;
+const chatId = telegram.chat;
+let res = '';
 
 function sendMessage (message) {
-  bot.sendMessage(chatId, message);
-  console.log('Отправили сообщение выходим из функции sendMessage');
+  message = encodeURI(message);
+  http.post(`https://api.telegram.org/bot${telegram.token}/sendMessage?chat_id=${telegram.chat}&parse_mode=html&text=${message}`, function (error, response, body) { });
   return;
 }
 

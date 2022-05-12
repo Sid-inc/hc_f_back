@@ -3,13 +3,31 @@ const exec = util.promisify(require('child_process').exec);
 const CronJob = require('cron').CronJob;
 const getDeviceStatus = require('../dbquerys/getDeviceStatus');
 const setDeviceStatus = require('../dbquerys/setDeviceStatus');
- const sendMessage = require('./sendMessage');
+const sendMessage = require('./sendMessage');
+
+//function monitoringIphone(iphone) {
+//  let task = new CronJob('* */2 * * * *', function() {
+//    сheckIphone(iphone);
+//  }, null, true, '');
+//  task.stop();
+//
+//  function start() {
+//    task.start();
+//  }
+
+//  function stop() {
+//    task.stop();
+//  }
+//}
 
 function monitoringIphone(iphone) {
-  let task = new CronJob('* */2 * * * *', function() {
+  let task = new CronJob('*/2 * * * *', function() {
+    console.log('Создана таска');
     сheckIphone(iphone);
   }, null, true, '');
   task.stop();
+  
+  return task;
 }
 
 async function сheckIphone(iphone) {
@@ -44,10 +62,10 @@ async function сheckIphone(iphone) {
     }
   }
   console.log('Закончилась функция CheckIphone выходим...');
-  process.exit();
   return;
 }
 
-сheckIphone({ ip: '192.168.1.10', id: 1 });
+// monitoringIphone({ ip: '192.168.1.10', id: 1 });
+// сheckIphone({ ip: '192.168.1.10', id: 1 });
 
 module.exports = monitoringIphone;
