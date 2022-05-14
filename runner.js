@@ -2,7 +2,8 @@
 const networkMonitoring = require('./modules/networkMonitoring');
 
 module.exports.run = function() {
-  networkMonitoring.run();
+  console.log(networkMonitoring.start);
+  networkMonitoring.start();
 // testTask.run();
 }
 

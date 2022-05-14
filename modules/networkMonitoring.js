@@ -2,8 +2,9 @@ const getDev = require('../dbquerys/getDevices');
 const monitoringIphone = require('./iphone');
 let queue = [];
 
-async function monitoringSet() {
-  const start = function() {
+//function monitoringSet() {
+//  const start = async function() {
+   async function start() {
     let devices = await getDev();
     for (const element of devices) {
       switch (element.type) {
@@ -17,11 +18,15 @@ async function monitoringSet() {
     }
   }
 
-  const stop = function() {
+//  const stop = function() {
+  function stop() {
     for (let item of queue) {
       item.stop();
     }
   }
-}
+//}
 
-monitoringSet();
+//module.exports = monitoringSet;
+start();
+module.exports = start;
+module.exports = stop;
