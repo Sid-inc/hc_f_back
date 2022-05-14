@@ -7,7 +7,12 @@ let res = '';
 
 function sendMessage (message) {
   message = encodeURI(message);
-  http.post(`https://api.telegram.org/bot${telegram.token}/sendMessage?chat_id=${telegram.chat}&parse_mode=html&text=${message}`, function (error, response, body) { });
+  http.post(
+    `
+      https://api.telegram.org/bot${telegram.token}/sendMessage?chat_id=${telegram.chat}&parse_mode=html&text=${message}
+    `, 
+    function (error, response, body) { }
+  );
   return;
 }
 

@@ -1,21 +1,27 @@
 const getDev = require('../dbquerys/getDevices');
 const monitoringIphone = require('./iphone');
+let queue = [];
 
 async function monitoringSet() {
-  let devices = await getDev();
-  for (const element of devices) {
-    switch (element.type) {
-      case 'iphone': 
-        let iphone = await monitoringIphone(element);
-	iphone.start();
-        break;
-      default: 
+  const start = function() {
+    let devices = await getDev();
+    for (const element of devices) {
+      switch (element.type) {
+        case 'iphone': 
+          let iphone = await monitoringIphone(element);
+          iphone.start();
+          queue.push(iphone);
+          break;
+        default: 
+      }
     }
   }
-}
 
-function monitoringRun(device) {
-  
+  const stop = function() {
+    for (let item of queue) {
+      item.stop();
+    }
+  }
 }
 
 monitoringSet();

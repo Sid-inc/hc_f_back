@@ -1,9 +1,12 @@
-const testTask = require('./modules/test');
+// const testTask = require('./modules/test');
+const networkMonitoring = require('./modules/networkMonitoring');
 
 module.exports.run = function() {
-  testTask.run();
+  networkMonitoring.run();
+// testTask.run();
 }
 
 module.exports.stop = function() {
-  testTask.stop();
+  networkMonitoring.stop();
+// testTask.stop();
 }

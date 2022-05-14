@@ -1,6 +1,7 @@
 const http = require('http');
 const url  = require('url');
 const runner = require('./runner');
+const sendMessage = require('./modules/sendMessage');
 
 http.createServer(function(request, response){
   if(request) {
@@ -23,9 +24,11 @@ function getRequest(request) {
     let url_parts = url.parse(request.url, true);
     if(url_parts.query.run === 'true') {
       runner.run();
+      sendMessage(`Запущены системы мониторинга`);
     }
     if(url_parts.query.run === 'false') {
       runner.stop();
+      sendMessage(`Остановлены системы мониторинга`);
     }
   }
 }
