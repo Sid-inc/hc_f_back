@@ -4,7 +4,7 @@ let queue = [];
 
 //function monitoringSet() {
 //  const start = async function() {
-   async function start() {
+module.exports.start = async function() {
     let devices = await getDev();
     for (const element of devices) {
       switch (element.type) {
@@ -18,8 +18,8 @@ let queue = [];
     }
   }
 
-//  const stop = function() {
-  function stop() {
+//const stop = function() {
+  module.exports.stop = function() {
     for (let item of queue) {
       item.stop();
     }
@@ -27,6 +27,5 @@ let queue = [];
 //}
 
 //module.exports = monitoringSet;
-start();
-module.exports = start;
-module.exports = stop;
+//module.exports = start;
+//module.exports = stop;
