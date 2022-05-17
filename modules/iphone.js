@@ -5,21 +5,6 @@ const getDeviceStatus = require('../dbquerys/getDeviceStatus');
 const setDeviceStatus = require('../dbquerys/setDeviceStatus');
 const sendMessage = require('./sendMessage');
 
-//function monitoringIphone(iphone) {
-//  let task = new CronJob('* */2 * * * *', function() {
-//    сheckIphone(iphone);
-//  }, null, true, '');
-//  task.stop();
-//
-//  function start() {
-//    task.start();
-//  }
-
-//  function stop() {
-//    task.stop();
-//  }
-//}
-
 function monitoringIphone(iphone) {
   let task = new CronJob('*/2 * * * *', function() {
     console.log('Создана таска');
@@ -64,8 +49,5 @@ async function сheckIphone(iphone) {
   console.log('Закончилась функция CheckIphone выходим...');
   return;
 }
-
-// monitoringIphone({ ip: '192.168.1.10', id: 1 });
-// сheckIphone({ ip: '192.168.1.10', id: 1 });
 
 module.exports = monitoringIphone;
