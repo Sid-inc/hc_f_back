@@ -22,7 +22,7 @@ async function сheckIphone(iphone) {
   let state = '';
 
   try {
-    const { stdout, stderr } = await exec(`ping -i 0.5 -w 61 -q ${iphone.ip}`);
+    const { stdout, stderr } = await exec(`ping -i 0.5 -w 90 -q ${iphone.ip}`);
     if (stdout.indexOf(' 0 received') === -1) {
       state = 'online';
     } else {
