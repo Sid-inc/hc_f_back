@@ -16,13 +16,15 @@ function monitoringIphone(iphone) {
 }
 
 async function сheckIphone(iphone) {
+  let workLog = '';
   // Актуализируем статус
   let currentState = await getDeviceStatus(iphone.id);
-  console.log(`Текущий статус из базы ${currentState}`);
+  workLog += `Текущий статус из базы ${currentState}\n`;
+  workLog += `--------------------------------------\n`;
   let state = '';
 
   try {
-    const { stdout, stderr } = await exec(`ping -i 0.5 -w 90 -q ${iphone.ip}`);
+    const { stdout, stderr } = await exec(`ping -i 0.5 -w 60 -q ${iphone.ip}`);
     if (stdout.indexOf(' 0 received') === -1) {
       state = 'online';
     } else {
@@ -31,23 +33,26 @@ async function сheckIphone(iphone) {
   } catch (err) {
     state = 'offline';
   }
-    console.log(`Новый статус полученный при пинге ${state}`);
+  workLog += `Новый статус полученный при пинге ${state}`;
+  workLog += `--------------------------------------\n`;
 
   // Проверка нового статуса устройства вышел из сети/вошел, не изменился
   if (state !== currentState) { // Статус изменился
-    console.log('Текущий статус не совпал с полученным при пинге');
+    workLog += 'Текущий статус не совпал с полученным при пинге';
+    workLog += `--------------------------------------\n`;
     if (currentState === null || currentState === 'offline') {
       // Устройство вошло в сеть
       sendMessage(`Телефон ${iphone.name} подключился к домашней сети`);
       await setDeviceStatus(iphone.id, 'online');
+      workLog += 'Записали статус online в базу';
     } else {
       // Устройство вышло из сети
       sendMessage(`Телефон ${iphone.name} вышел из домашней сети`);
       await setDeviceStatus(iphone.id, 'offline');
+      workLog += 'Записали статус offline в базу';
     }
   }
-  console.log('Закончилась функция CheckIphone выходим...');
-  return;
+  sendMessage(workLog);
 }
 
 module.exports = monitoringIphone;
