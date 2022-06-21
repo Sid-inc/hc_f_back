@@ -30,6 +30,7 @@ function getRequest(request) {
       if(monitoringState) {
         runner.stop();
         sendMessage(`Остановлены системы мониторинга`);
+	monitoringState = false;
       } else {
         sendMessage(`Системы мониторинга не запущены`);
       }
