@@ -38,21 +38,22 @@ async function сheckIphone(iphone) {
 
   // Проверка нового статуса устройства вышел из сети/вошел, не изменился
   if (state !== currentState) { // Статус изменился
-    workLog += 'Текущий статус не совпал с полученным при пинге';
+    workLog += 'Текущий статус не совпал с полученным при пинге\n';
     workLog += `--------------------------------------\n`;
     if (currentState === null || currentState === 'offline') {
       // Устройство вошло в сеть
       sendMessage(`Телефон ${iphone.name} подключился к домашней сети`);
       await setDeviceStatus(iphone.id, 'online');
       workLog += 'Записали статус online в базу';
+      sendMessage(workLog);
     } else {
       // Устройство вышло из сети
       sendMessage(`Телефон ${iphone.name} вышел из домашней сети`);
       await setDeviceStatus(iphone.id, 'offline');
       workLog += 'Записали статус offline в базу';
+      sendMessage(workLog);
     }
   }
-  sendMessage(workLog);
 }
 
 module.exports = monitoringIphone;
