@@ -1,9 +1,8 @@
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
 const CronJob = require('cron').CronJob;
 const getDeviceStatus = require('../dbquerys/getDeviceStatus');
 const setDeviceStatus = require('../dbquerys/setDeviceStatus');
 const sendMessage = require('./sendMessage');
+const pinger = require('./pinger');
 
 function monitoringIphone(iphone) {
   let task = new CronJob('*/2 * * * *', function() {
@@ -15,29 +14,17 @@ function monitoringIphone(iphone) {
   return task;
 }
 
-async function сheckIphone(iphone) {
+async function checkState(newState, currentState) {
   let workLog = '';
-  // Актуализируем статус
-  let currentState = await getDeviceStatus(iphone.id);
-  workLog += `Текущий статус из базы ${currentState}\n`;
-  workLog += `--------------------------------------\n`;
-  let state = '';
 
-  try {
-    const { stdout, stderr } = await exec(`ping -i 0.5 -w 60 -q ${iphone.ip}`);
-    if (stdout.indexOf(' 0 received') === -1) {
-      state = 'online';
-    } else {
-      state = 'offline';
-    }
-  } catch (err) {
-    state = 'offline';
+  if(newState === 'error') {
+    workLog += '5 попыток пинга завершились ошибкой\n';
+    sendMessage(workLog);
+    return;
   }
-  workLog += `Новый статус полученный при пинге ${state}`;
-  workLog += `--------------------------------------\n`;
 
-  // Проверка нового статуса устройства вышел из сети/вошел, не изменился
-  if (state !== currentState) { // Статус изменился
+// Проверка нового статуса устройства вышел из сети/вошел, не изменился
+  if (newState !== currentState) { // Статус изменился
     workLog += 'Текущий статус не совпал с полученным при пинге\n';
     workLog += `--------------------------------------\n`;
     if (currentState === null || currentState === 'offline') {
@@ -54,6 +41,32 @@ async function сheckIphone(iphone) {
       sendMessage(workLog);
     }
   }
+}
+
+async function сheckIphone(iphone) {
+  let workLog = '';
+  // Актуализируем статус
+  const currentState = await getDeviceStatus(iphone.id);
+  workLog += `Текущий статус из базы ${currentState}\n`;
+  workLog += `--------------------------------------\n`;
+  let state = '';
+  
+  for(let i = 1; i <=5; i++) {
+    state = await pinger(iphone.ip, 0.5, 60);
+
+    if(state !== 'error') {
+      break;
+    }
+  }
+
+  if(state === 'ok') state = 'online';
+  if(state === 'timeout') state = 'offline';
+
+  workLog += `Новый статус полученный при пинге ${state}\n`;
+  workLog += `--------------------------------------\n`;
+  sendMessage(workLog);
+  
+  checkState(state, currentState);
 }
 
 module.exports = monitoringIphone;
