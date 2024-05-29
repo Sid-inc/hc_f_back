@@ -3,4 +3,5 @@ import { getBooksRoutes } from './routes/books';
 
 export const app = express();
 
-app.use("/books", getBooksRoutes());
+app.use(express.json());
+app.use('/books', getBooksRoutes());

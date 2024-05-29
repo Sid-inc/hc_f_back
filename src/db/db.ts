@@ -1,8 +1,8 @@
-import { BookViewModel, Cover } from "../models/bookViewModel";
+import { BookViewModel, Cover } from '../models/bookViewModel';
 
 export const books = [{
   category: 'classic',
-  id: 1,
+  id: '1',
   title: 'Greatest Works of Oscar Wilde (DELUXE HARDBOUND EDITION)',
   author: 'Oscar Wilde',
   price: 42.43,

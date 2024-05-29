@@ -1,8 +1,9 @@
+import { Cover } from './bookViewModel';
+
 /**
- * Модель книги.
+ * Модель создания книги.
  */
-export interface BookViewModel {
-  id: string;
+export interface BookCreateModel {
   category: string;
   title: string;
   author: string;
@@ -13,12 +14,4 @@ export interface BookViewModel {
   cover: Cover;
   description: string;
   amount: number;
-}
-
-/**
- * Типы обложки.
- */
-export enum Cover {
-  HARDCOVER = 'Hardcover',
-  PAPERBACK = 'Paperback',
 }
