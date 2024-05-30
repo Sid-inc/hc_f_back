@@ -1,12 +1,12 @@
-import { BookViewModel } from 'models/bookViewModel';
+import { BookViewModel, Cover } from '../models/bookViewModel';
 import { BookCreateModel } from '../models/bookCreateModel';
 import { v4 as uuid } from 'uuid';
 import { books } from '../db/db';
 
 export const booksRepository = {
-  createBooks(books: BookCreateModel[])
+  createBooks(newBooks: BookCreateModel[])
   {
-    for (const book of books) {
+    for (const book of newBooks) {
       this.createBook(book);
     }
   },
@@ -21,7 +21,7 @@ export const booksRepository = {
       urlToImages: book.urlToImages,
       rating: book.rating,
       isBestSeller: book.isBestSeller,
-      cover: book.cover,
+      cover: Cover[book.cover as unknown as keyof typeof Cover],
       description: book.description,
       amount: book.amount,
     }

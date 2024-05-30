@@ -27,6 +27,7 @@ export const getBooksRoutes = () => {
     const book = books.find(b => b.id === bookId);
   
     if (book) {
+      res.status(200);
       res.send(book);
     } else {
       res.sendStatus(404);
