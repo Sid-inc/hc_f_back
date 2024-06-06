@@ -10,6 +10,7 @@ export const getBooksRoutes = () => {
   const router = Router();
 
   router.get('/', (req: Request, res: Response<BookViewModel[]>) => {
+    const books = booksRepository.getAll();
     res.send(books);
   });
 
@@ -24,7 +25,7 @@ export const getBooksRoutes = () => {
 
   router.get('/:id', (req: RequestWithParams<BookGetModel>, res: Response<BookViewModel>) => {
     const bookId = req.params.id;
-    const book = books.find(b => b.id === bookId);
+    const book = booksRepository.getItem(bookId);
   
     if (book) {
       res.status(200);

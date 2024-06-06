@@ -11,7 +11,7 @@ export const booksRepository = {
     }
   },
 
-  createBook(book: BookCreateModel) {
+  createBook(book: BookCreateModel): void {
     const newBook: BookViewModel = {
       id: uuid(),
       category: book.category,
@@ -28,6 +28,14 @@ export const booksRepository = {
 
     books.push(newBook);
   },
+
+  getAll(): BookViewModel[] {
+    return books;
+  },
+
+  getItem(id: string): BookViewModel | undefined {
+    return books.find(b => b.id === id);
+  }
 
   filterBooks() {
     console.log('aaaaa');
