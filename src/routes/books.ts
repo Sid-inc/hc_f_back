@@ -4,13 +4,13 @@ import { BookViewModel } from '../models/bookViewModel';
 import { BookGetModel } from '../models/getBookModel';
 import { RequestWithBody, RequestWithParams } from '../models/types';
 import { BookCreateModel } from '../models/bookCreateModel';
-import { booksRepository } from '../repositories/booksRepository';
+import { booksRepository } from '../repositories/booksRepositorySql';
 
 export const getBooksRoutes = () => {
   const router = Router();
 
-  router.get('/', (req: Request, res: Response<BookViewModel[]>) => {
-    const books = booksRepository.getAll();
+  router.get('/', async (req: Request, res: Response<BookViewModel[]>) => {
+    const books = await booksRepositorySql.getAll();
     res.send(books);
   });
 
@@ -23,9 +23,9 @@ export const getBooksRoutes = () => {
     }
   });
 
-  router.get('/:id', (req: RequestWithParams<BookGetModel>, res: Response<BookViewModel>) => {
+  router.get('/:id', async (req: RequestWithParams<BookGetModel>, res: Response<BookViewModel>) => {
     const bookId = req.params.id;
-    const book = booksRepository.getItem(bookId);
+    const book = await booksRepository.getItem(bookId);
   
     if (book) {
       res.status(200);
