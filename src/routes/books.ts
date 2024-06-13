@@ -10,7 +10,7 @@ export const getBooksRoutes = () => {
   const router = Router();
 
   router.get('/', async (req: Request, res: Response<BookViewModel[]>) => {
-    const books = await booksRepositorySql.getAll();
+    const books = await booksRepository.getAll();
     res.send(books);
   });
 
