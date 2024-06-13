@@ -1,12 +1,13 @@
 import { BookCreateModel } from "../models/bookCreateModel";
-import { v4 as uuid } from 'uuid';
-import mysql from 'mysql';
+import { v4 as uuid } from "uuid";
+import mysql from "mysql";
+import util from "util";
 import { BookViewModel } from "models/bookViewModel";
 
-export const booksRepositorySql = {
+export const booksRepository = {
   async createBook(book: BookCreateModel) {
     let request = "INSERT INTO `books` (`id`, `category`, `title`, `author`, `price`, `urltoimages`, `rating`, `isbestseller`, `cover`, `description`, `amount`) ";
-    request += `VALUES ('${uuid()}', '${book.category}', '${book.title}', '${book.author}', '${book.price}', '${JSON.stringify(book.urlToImages)}', '${book.rating}', '${book.isBestSeller}', '${book.cover}', '${book.description}', '${book.amount}');`;
+    request += `VALUES ("${uuid()}", "${book.category}", "${book.title}", "${book.author}", "${book.price}", "${JSON.stringify(book.urlToImages)}", "${book.rating}", "${book.isBestSeller}", "${book.cover}", "${book.description}", "${book.amount}");`;
 
     await executeSQL(request);
   },
@@ -20,51 +21,50 @@ export const booksRepositorySql = {
 
   async getAll(): Promise<BookViewModel[]> {
     let request = "SELECT * FROM `books`";
-    const response = await executeSQL(request);
-    console.log(response);
-    const books:BookViewModel[] = [];
-
-    // for (const item of response) {
-    //   books.push({
-    //     item.id,
-    //     item.category,
-    //     item.title,
-    //     item.author,
-    //     item.price,
-    //     item.urlToImages,
-    //     item.rating,
-    //     item.isBestSeller,
-    //     item.cover,
-    //     item.description,
-    //     item.amount,
-    //   });
-    // }
+    const response = await executeSQLGetAll(request);
+    const books: BookViewModel[] = [];
+    
+    for (const item of response) {
+      books.push({
+        id: item.id,
+        category: item.category,
+        title: item.title,
+        author: item.author,
+        price: item.price,
+        urlToImages: item.urlToImages,
+        rating: item.rating,
+        isBestSeller: item.isBestSeller,
+        cover: item.cover,
+        description: item.description,
+        amount: item.amount,
+      });
+    }
     return books;
   },
 
   async getItem(id: string): Promise<BookViewModel> {
     let request = "SELECT * FROM `books` WHERE id=";
-    request += `'${}'`;
-    const response = await executeSQL(request);
+    request += `"${id}"`;
+    const response = await executeSQLGetSingle(request);
 
     const book: BookViewModel = {
-          //     response.id,
-    //     response.category,
-    //     response.title,
-    //     response.author,
-    //     response.price,
-    //     response.urlToImages,
-    //     response.rating,
-    //     response.isBestSeller,
-    //     response.cover,
-    //     response.description,
-    //     response.amount,
+      id: response.id,
+      category: response.category,
+      title: response.title,
+      author: response.author,
+      price: response.price,
+      urlToImages: response.urlToImages,
+      rating: response.rating,
+      isBestSeller: response.isBestSeller,
+      cover: response.cover,
+      description: response.description,
+      amount: response.amount,
     };
     return book;
   }
 }
 
-async function executeSQL(request: string): Promise<any> {
+async function executeSQL(request: string): Promise<void> {
   const connection = mysql.createConnection(env.db);
 
   connection.connect((error) => {
@@ -77,10 +77,31 @@ async function executeSQL(request: string): Promise<any> {
   });
 }
 
+async function executeSQLGetAll(request: string): Promise<any[]> {
+  const connection = mysql.createConnection(env.db);
+  let response: any[] = [];
+
+  const q = util.promisify(connection.query).bind(connection);
+  response = await q(request) as any[];
+
+  return response;
+}
+
+async function executeSQLGetSingle(request: string): Promise<any> {
+  const connection = mysql.createConnection(env.db);
+  let response: any;
+
+  const q = util.promisify(connection.query).bind(connection);
+  response = await q(request) as any;
+
+  return response;
+}
+
 const env = {
   db: {
-    host: 'localhost',
-    user: 'user',
-    password: 'password',
+    host: "localhost",
+    user: "books_editor",
+    password: "password",
+    database: "books"
   }
 }

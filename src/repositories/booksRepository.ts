@@ -35,9 +35,9 @@ export const booksRepository = {
 
   getItem(id: string): BookViewModel | undefined {
     return books.find(b => b.id === id);
-  }
+  },
 
   filterBooks() {
     console.log('aaaaa');
-  }
+  },
 }
