@@ -4,7 +4,7 @@ import { BookViewModel } from '../models/bookViewModel';
 import { BookGetModel } from '../models/getBookModel';
 import { RequestWithBody, RequestWithParams } from '../models/types';
 import { BookCreateModel } from '../models/bookCreateModel';
-import { booksRepository } from '../repositories/booksRepositorySql';
+import { booksRepository } from '../repositories/booksRepository';
 
 export const getBooksRoutes = () => {
   const router = Router();

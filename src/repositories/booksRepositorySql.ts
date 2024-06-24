@@ -94,7 +94,7 @@ async function executeSQLGetSingle(request: string): Promise<any> {
   const q = util.promisify(connection.query).bind(connection);
   response = await q(request) as any;
 
-  return response;
+  return response[0];
 }
 
 const env = {
