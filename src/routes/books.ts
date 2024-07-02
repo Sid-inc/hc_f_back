@@ -14,14 +14,14 @@ export const getBooksRoutes = () => {
     res.send(books);
   });
 
-  router.post('/', (req: RequestWithBody<BookCreateModel[]>, res: Response) => {
-    if (req.body !== undefined && req.body.length) {
-      booksRepository.createBooks(req.body);
-      res.sendStatus(201);
-    } else {
-      res.sendStatus(404);
-    }
-  });
+  // router.post('/', (req: RequestWithBody<BookCreateModel[]>, res: Response) => {
+  //   if (req.body !== undefined && req.body.length) {
+  //     booksRepository.createBooks(req.body);
+  //     res.sendStatus(201);
+  //   } else {
+  //     res.sendStatus(404);
+  //   }
+  // });
 
   router.get('/:id', async (req: RequestWithParams<BookGetModel>, res: Response<BookViewModel>) => {
     const bookId = req.params.id;

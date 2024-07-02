@@ -21,7 +21,7 @@ export const booksRepository = {
       urlToImages: book.urlToImages,
       rating: book.rating,
       isBestSeller: book.isBestSeller,
-      cover: Cover[book.cover as unknown as keyof typeof Cover],
+      cover: book.cover === "Paperback" ? Cover.PAPERBACK : Cover.HARDCOVER,
       description: book.description,
       amount: book.amount,
     }
