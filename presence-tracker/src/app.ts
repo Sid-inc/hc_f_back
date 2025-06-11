@@ -4,6 +4,7 @@ import * as cron from 'cron';
 import { initStorage, readStatus } from './storage';
 import { NetworkScanner } from './scanner';
 import { ScanConfig } from './types';
+import { initTelegramBot } from './telegramBot';
 
 const CronJob = cron.CronJob;
 dotenv.config();
@@ -27,7 +28,8 @@ const CONFIG: ScanConfig = {
 
 (async () => {
   await initStorage();
-  
+  initTelegramBot();
+
   const app = express();
   const port = process.env.PORT || 3000;
   const scanner = new NetworkScanner(CONFIG);

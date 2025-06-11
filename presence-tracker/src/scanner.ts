@@ -2,6 +2,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { updateStatus, readStatus } from './storage';
 import { ScanConfig } from './types';
+import { checkPcAndNotify } from './telegramBot';
 
 const execAsync = promisify(exec);
 
@@ -77,6 +78,8 @@ export class NetworkScanner {
             console.log(`[${localTime}] Device ${this.config.targetMAC} marked as offline`);
             this.lastOnlineStatus = false;
             await updateStatus('offline');
+            const chatId = process.env.TELEGRAM_CHAT_ID;
+            if (chatId) await checkPcAndNotify(Number(chatId));
           }
         } else {
           // Временное отсутствие - сохраняем статус "online"
