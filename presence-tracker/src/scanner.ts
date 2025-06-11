@@ -17,17 +17,17 @@ export class NetworkScanner {
 
   public async scan(): Promise<boolean> {
     if (this.scanInProgress) return this.lastOnlineStatus;
-    
+
     this.scanInProgress = true;
     let isPresent = false;
-    
+
     try {
       const arpRetry = process.env.ARP_RETRY || '5';
       const arpTimeout = process.env.ARP_TIMEOUT || '3000';
-      
+
       const { stdout } = await execAsync(
         `sudo arp-scan -I ${this.config.scanInterface} --localnet --retry=${arpRetry} --timeout=${arpTimeout}`,
-        { timeout: 45000  }
+        { timeout: 45000 }
       );
 
       // Поиск MAC в выводе
@@ -42,10 +42,10 @@ export class NetworkScanner {
     } finally {
       this.scanInProgress = false;
     }
-    
+
     const arpPresent = isPresent;
     const dhcpPresent = await this.checkDhcpLease();
-  
+
     return arpPresent || dhcpPresent;
   }
 
@@ -55,26 +55,26 @@ export class NetworkScanner {
       timeZone: 'Europe/Moscow',
       hour12: false
     });
-    
+
     if (isPresent) {
-    if (!this.lastOnlineStatus) {
-      console.log(`[${localTime}] Device detected (MAC: ${this.config.targetMAC})`);
-      await updateStatus('online');
+      if (!this.lastOnlineStatus) {
+        console.log(`[${localTime}] Device detected (MAC: ${this.config.targetMAC})`);
+        await updateStatus('online');
+      }
+      this.lastOnlineStatus = true;
+      return;
     }
-    this.lastOnlineStatus = true;
-    return;
-  }
 
     // Проверка времени отсутствия
     if (this.lastOnlineStatus) {
       const statusData = await readStatus();
-      
+
       if (statusData.lastSeen) {
         const minutesOffline = (now.getTime() - this.lastSeenTime) / (1000 * 60);
         // Только если устройство не обнаруживается дольше порога
         if (minutesOffline >= this.config.offlineThreshold) {
           if (this.lastOnlineStatus) {
-            console.log(`[${timestamp}] Device ${this.config.targetMAC} marked as offline`);
+            console.log(`[${localTime}] Device ${this.config.targetMAC} marked as offline`);
             this.lastOnlineStatus = false;
             await updateStatus('offline');
           }
@@ -87,11 +87,11 @@ export class NetworkScanner {
   }
 
   async checkDhcpLease(): Promise<boolean> {
-  try {
-    const { stdout } = await execAsync('cat /var/lib/misc/dnsmasq.leases');
-    return stdout.includes(this.config.targetMAC.toLowerCase());
-  } catch {
-    return false;
+    try {
+      const { stdout } = await execAsync('cat /var/lib/misc/dnsmasq.leases');
+      return stdout.includes(this.config.targetMAC.toLowerCase());
+    } catch {
+      return false;
+    }
   }
-}
 }
