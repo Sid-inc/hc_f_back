@@ -22,8 +22,11 @@ export class NetworkScanner {
     let isPresent = false;
     
     try {
+      const arpRetry = process.env.ARP_RETRY || '5';
+      const arpTimeout = process.env.ARP_TIMEOUT || '3000';
+      
       const { stdout } = await execAsync(
-        `sudo arp-scan -I ${this.config.scanInterface} --localnet --retry=5 --timeout=3000`,
+        `sudo arp-scan -I ${this.config.scanInterface} --localnet --retry=${arpRetry} --timeout=${arpTimeout}`,
         { timeout: 45000  }
       );
 

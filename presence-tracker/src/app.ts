@@ -7,6 +7,7 @@ import { ScanConfig } from './types';
 
 const CronJob = cron.CronJob;
 dotenv.config();
+process.env.TZ = 'Europe/Moscow';
 
 // Проверка обязательных переменных окружения
 const requiredVars = ['DEVICE_MAC', 'CRON_SCHEDULE', 'OFFLINE_THRESHOLD'];
