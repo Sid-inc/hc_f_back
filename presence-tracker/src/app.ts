@@ -1,10 +1,11 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { CronJob } from 'cron';
+import * as cron from 'cron';
 import { initStorage, readStatus } from './storage';
 import { NetworkScanner } from './scanner';
 import { ScanConfig } from './types';
 
+const CronJob = cron.CronJob;
 dotenv.config();
 
 // Проверка обязательных переменных окружения
@@ -84,6 +85,6 @@ const CONFIG: ScanConfig = {
     console.log(`Tracking device: ${CONFIG.targetMAC}`);
     console.log(`Cron schedule: '${cronSchedule}'`);
     console.log(`Offline threshold: ${CONFIG.offlineThreshold} minutes`);
-    console.log(`Cron job started: ${cronJob.isActive}`);
+    console.log(`Cron job started: ${cronJob.running}`);
   });
 })();
