@@ -9,6 +9,7 @@ export class NetworkScanner {
   private config: ScanConfig;
   private lastOnlineStatus: boolean = false;
   private scanInProgress: boolean = false;
+  private lastSeenTime: number = 0;
 
   constructor(config: ScanConfig) {
     this.config = config;
@@ -22,26 +23,32 @@ export class NetworkScanner {
     
     try {
       const { stdout } = await execAsync(
-        `sudo arp-scan -I ${this.config.scanInterface} --localnet --retry=2 --timeout=1000`,
-        { timeout: 30000 }
+        `sudo arp-scan -I ${this.config.scanInterface} --localnet --retry=5 --timeout=3000`,
+        { timeout: 45000  }
       );
 
       // Поиск MAC в выводе
-      const macRegex = new RegExp(this.config.targetMAC.replace(/:/g, '[-:]?'), 'i');
+      const macPattern = this.config.targetMAC.toLowerCase().replace(/:/g, '[ :]?');
+      const macRegex = new RegExp(`(${macPattern})(?![0-9a-f])`, 'i');
       isPresent = macRegex.test(stdout);
 
       await this.handleDeviceStatus(isPresent);
     } catch (error: any) {
       console.error(`[${new Date().toISOString()}] Scan error:`, error.message);
+      isPresent = this.lastOnlineStatus;
     } finally {
       this.scanInProgress = false;
     }
     
-    return isPresent;
+    const arpPresent = isPresent;
+    const dhcpPresent = await this.checkDhcpLease();
+  
+    return arpPresent || dhcpPresent;
   }
 
   private async handleDeviceStatus(isPresent: boolean): Promise<void> {
-    const timestamp = new Date().toISOString();
+    const now = new Date();
+    const timestamp = now.toISOString();
     
     if (isPresent) {
       if (!this.lastOnlineStatus) {
@@ -49,6 +56,7 @@ export class NetworkScanner {
         await updateStatus('online');
       }
       this.lastOnlineStatus = true;
+      this.lastSeenTime = now.getTime();
       return;
     }
 
@@ -57,16 +65,28 @@ export class NetworkScanner {
       const statusData = await readStatus();
       
       if (statusData.lastSeen) {
-        const lastSeenTime = new Date(statusData.lastSeen).getTime();
-        const currentTime = Date.now();
-        const minutesOffline = (currentTime - lastSeenTime) / (1000 * 60);
-        
+        const minutesOffline = (now.getTime() - this.lastSeenTime) / (1000 * 60);
+        // Только если устройство не обнаруживается дольше порога
         if (minutesOffline >= this.config.offlineThreshold) {
-          console.log(`[${timestamp}] Device ${this.config.targetMAC} marked as offline`);
-          this.lastOnlineStatus = false;
-          await updateStatus('offline');
+          if (this.lastOnlineStatus) {
+            console.log(`[${timestamp}] Device ${this.config.targetMAC} marked as offline`);
+            this.lastOnlineStatus = false;
+            await updateStatus('offline');
+          }
+        } else {
+          // Временное отсутствие - сохраняем статус "online"
+          this.lastOnlineStatus = true;
         }
       }
     }
   }
+
+  async checkDhcpLease(): Promise<boolean> {
+  try {
+    const { stdout } = await execAsync('cat /var/lib/misc/dnsmasq.leases');
+    return stdout.includes(this.config.targetMAC.toLowerCase());
+  } catch {
+    return false;
+  }
+}
 }
