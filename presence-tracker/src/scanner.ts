@@ -51,17 +51,19 @@ export class NetworkScanner {
 
   private async handleDeviceStatus(isPresent: boolean): Promise<void> {
     const now = new Date();
-    const timestamp = now.toISOString();
+    const localTime = now.toLocaleString('ru-RU', {
+      timeZone: 'Europe/Moscow',
+      hour12: false
+    });
     
     if (isPresent) {
-      if (!this.lastOnlineStatus) {
-        console.log(`[${timestamp}] Device ${this.config.targetMAC} detected`);
-        await updateStatus('online');
-      }
-      this.lastOnlineStatus = true;
-      this.lastSeenTime = now.getTime();
-      return;
+    if (!this.lastOnlineStatus) {
+      console.log(`[${localTime}] Device detected (MAC: ${this.config.targetMAC})`);
+      await updateStatus('online');
     }
+    this.lastOnlineStatus = true;
+    return;
+  }
 
     // Проверка времени отсутствия
     if (this.lastOnlineStatus) {

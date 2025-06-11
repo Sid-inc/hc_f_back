@@ -39,9 +39,9 @@ const CONFIG: ScanConfig = {
     async () => {
       try {
         const isPresent = await scanner.scan();
-        console.log(`[${new Date().toISOString()}] Cron scan executed. Device ${isPresent ? 'present' : 'absent'}`);
+        console.log(`[${new Date().toLocaleString('ru-RU', {timeZone: 'Europe/Moscow'})}] Cron scan executed. Device ${isPresent ? 'present' : 'absent'}`);
       } catch (error) {
-        console.error(`[${new Date().toISOString()}] Cron job error:`, error);
+        console.error(`[${new Date().toLocaleString('ru-RU', {timeZone: 'Europe/Moscow'})}] Cron job error:`, error);
       }
     },
     null, // onComplete
@@ -87,5 +87,10 @@ const CONFIG: ScanConfig = {
     console.log(`Cron schedule: '${cronSchedule}'`);
     console.log(`Offline threshold: ${CONFIG.offlineThreshold} minutes`);
     console.log(`Cron job started: ${cronJob.running}`);
+  });
+
+  process.on('SIGTERM', () => {
+    console.log('Received SIGTERM, shutting down gracefully');
+    process.exit(0);
   });
 })();
