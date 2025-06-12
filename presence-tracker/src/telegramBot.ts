@@ -90,8 +90,11 @@ async function handleShutdownCommand(chatId: number, command: string) {
 
 export async function checkPcAndNotify(chatId: number) {
   try {
+    console.log(`Проверка ПК... IP: ${process.env.PC_IP}`);
     const res = await ping.promise.probe(process.env.PC_IP || '', { timeout: 2 });
+    console.log(`Результат ping: ${res.alive ? 'online' : 'offline'}`);
     if (res.alive) {
+      console.log(`Отправка уведомления в чат ${chatId}`);
       await bot.sendMessage(
         chatId,
         '⚠️ Кажется, ты забыл выключить Windows ПК!',
