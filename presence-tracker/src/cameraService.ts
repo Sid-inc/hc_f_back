@@ -1,6 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { CookieJar, Cookie } from 'tough-cookie';
-import * as fs from 'fs';
 
 interface CameraInfo {
   cam_id: number;
