@@ -3,6 +3,7 @@ import ping from 'ping';
 import wol from 'wake_on_lan';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { getCameraService } from './cameraService';
 
 const execAsync = promisify(exec);
 
@@ -45,11 +46,34 @@ export function initTelegramBot() {
   bot.onText(/\/help/, (msg) => {
     bot.sendMessage(msg.chat.id,
       `Команды:
-    /status - Проверить статус
-    /shutdown [мин] - Выключить ПК
-    /wake - Разбудить ПК`,
+        /status - Проверить статус
+        /shutdown [мин] - Выключить ПК
+        /wake - Разбудить ПК,
+        /camera - Получить изображение с камеры`,
       { parse_mode: 'Markdown' }
     );
+  });
+
+  bot.onText(/\/camera/, async (msg) => {
+    if (!msg.from?.id || !process.env.AUTHORIZED_USERS?.includes(msg.from.id.toString())) {
+      return bot.sendMessage(msg.chat.id, '🚫 Доступ запрещен');
+    }
+
+    try {
+      const loadingMsg = await bot.sendMessage(msg.chat.id, '🔄 Получаю снимок с камеры...');
+      
+      const service = await getCameraService();
+      const imageBuffer = await service.getSnapshot();
+      
+      await bot.deleteMessage(msg.chat.id, loadingMsg.message_id.toString());
+      await bot.sendPhoto(msg.chat.id, imageBuffer, {
+        caption: `📷 Камера • ${new Date().toLocaleString('ru-RU')}`,
+        parse_mode: 'Markdown'
+      });
+    } catch (error) {
+      console.error('Camera command error:', error);
+      await bot.sendMessage(msg.chat.id, '❌ Ошибка: не удалось получить снимок с камеры');
+    }
   });
 }
 
@@ -90,11 +114,8 @@ async function handleShutdownCommand(chatId: number, command: string) {
 
 export async function checkPcAndNotify(chatId: number) {
   try {
-    console.log(`Проверка ПК... IP: ${process.env.PC_IP}`);
     const res = await ping.promise.probe(process.env.PC_IP || '', { timeout: 2 });
-    console.log(`Результат ping: ${res.alive ? 'online' : 'offline'}`);
     if (res.alive) {
-      console.log(`Отправка уведомления в чат ${chatId}`);
       await bot.sendMessage(
         chatId,
         '⚠️ Кажется, ты забыл выключить Windows ПК!',
