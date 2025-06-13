@@ -3,7 +3,7 @@ import ping from 'ping';
 import wol from 'wake_on_lan';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { getCameraService } from './cameraService';
+import { CameraService } from './cameraService';
 
 const execAsync = promisify(exec);
 
@@ -21,6 +21,13 @@ function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
 
 export function initTelegramBot() {
   bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN || '', { polling: true });
+
+  // Инициализация CameraService
+  const cameraService = new CameraService(
+    process.env.CAMERA_LOGIN || '',
+    process.env.CAMERA_PASSWORD || '',
+    process.env.CAMERA_NAME || ''
+  );
 
   bot.on('message', async (msg) => {
     if (!msg.from?.id || !process.env.AUTHORIZED_USERS?.includes(msg.from.id.toString())) {
@@ -61,18 +68,26 @@ export function initTelegramBot() {
 
     try {
       const loadingMsg = await bot.sendMessage(msg.chat.id, '🔄 Получаю снимок с камеры...');
-      
-      const service = await getCameraService();
-      const imageBuffer = await service.getSnapshot();
-      
-      await bot.deleteMessage(msg.chat.id, loadingMsg.message_id.toString());
-      await bot.sendPhoto(msg.chat.id, imageBuffer, {
-        caption: `📷 Камера • ${new Date().toLocaleString('ru-RU')}`,
-        parse_mode: 'Markdown'
-      });
+
+      try {
+        await cameraService.initialize();
+        const imageBuffer = await cameraService.getSnapshot();
+
+        await bot.deleteMessage(msg.chat.id, loadingMsg.message_id.toString());
+        await bot.sendPhoto(msg.chat.id, imageBuffer, {
+          caption: `📷 Камера • ${new Date().toLocaleString('ru-RU')}`,
+          parse_mode: 'Markdown'
+        });
+      } catch (error) {
+        await bot.editMessageText('❌ Ошибка при получении снимка с камеры', {
+          chat_id: msg.chat.id,
+          message_id: loadingMsg.message_id
+        });
+        console.error('Camera error:', error);
+      }
     } catch (error) {
       console.error('Camera command error:', error);
-      await bot.sendMessage(msg.chat.id, '❌ Ошибка: не удалось получить снимок с камеры');
+      await bot.sendMessage(msg.chat.id, '❌ Ошибка: не удалось инициализировать сервис камеры');
     }
   });
 }
